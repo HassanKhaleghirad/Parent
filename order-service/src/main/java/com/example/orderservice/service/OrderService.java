@@ -11,6 +11,7 @@ import com.example.orderservice.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 import java.util.Arrays;
 import java.util.List;
@@ -38,11 +39,12 @@ public class OrderService {
                 .map(OrderLineItems::getSkuCode)
                 .toList();
        InventoryResponse[] inventoryResponsesArray = webClient.get()
-                        .uri("http://localhost:8082/api/inventory",
+                        .uri("http://localhost:8085/api/inventory",
                                 uriBuilder -> uriBuilder.queryParam("skuCode", skuCodes).build())
                                 .retrieve()
                                         .bodyToMono(InventoryResponse[].class)
-                                                .block();
+                                            .block();
+
         assert inventoryResponsesArray != null;
         boolean allProductsInStock = Arrays.stream(inventoryResponsesArray).allMatch(InventoryResponse::isInStock);
        if(allProductsInStock){
